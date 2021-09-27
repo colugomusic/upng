@@ -1163,13 +1163,27 @@ upng_t* upng_new_from_file(const char *filename)
 	unsigned char *buffer;
 	FILE *file;
 	long size;
+#ifdef _WIN32
+	errno_t err;
+#endif
 
 	upng = upng_new();
 	if (upng == NULL) {
 		return NULL;
 	}
 
+#ifdef _WIN32
+	err = fopen_s(&file, filename, "rb");
+
+	if (err != 0)
+	{
+		SET_ERROR(upng, UPNG_ENOTFOUND);
+		return upng;
+	}
+#else
 	file = fopen(filename, "rb");
+#endif
+
 	if (file == NULL) {
 		SET_ERROR(upng, UPNG_ENOTFOUND);
 		return upng;
